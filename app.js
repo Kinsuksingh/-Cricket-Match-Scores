@@ -130,13 +130,19 @@ app.get('/matches/:matchId/players', async (req,res) => {
 
 app.get('/players/:playerId/playerScores', async (req,res)=> {
     const {playerId} = req.params;
-    const query = `SELECT pd.player_id as playerId, pd.player_name as playerName,
-    SUM(pms.score) as totalScore, SUM(pms.fours) as totalFours, SUM(pms.sixes) as totalSixes
-    FROM player_match_score as pms
-    JOIN player_details as pd ON pd.player_id = pms.player_id;
-    WHERE pd.player_id = ${playerId};`;
+    const getPlayerScored = `
+    SELECT
+    player_details.player_id AS playerId,
+    player_details.player_name AS playerName,
+    SUM(player_match_score.score) AS totalScore,
+    SUM(fours) AS totalFours,
+    SUM(sixes) AS totalSixes FROM 
+    player_details INNER JOIN player_match_score ON
+    player_details.player_id = player_match_score.player_id
+    WHERE player_details.player_id = ${playerId};
+    `;
     try{
-        const statisticalData = await db.all(query);
+        const statisticalData = await db.get(getPlayerScored);
         res.send(statisticalData);
     }catch(error){
         console.log(error);
