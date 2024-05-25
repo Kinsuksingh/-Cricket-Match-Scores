@@ -136,7 +136,7 @@ app.get('/players/:playerId/playerScores', async (req,res)=> {
     JOIN player_details as pd ON pd.player_id = pms.player_id;
     WHERE pd.player_id = ${playerId};`;
     try{
-        const statisticalData = await db.get(query);
+        const statisticalData = await db.all(query);
         res.send(statisticalData);
     }catch(error){
         console.log(error);
